@@ -1,0 +1,178 @@
+<ns0:RootFileSystem xmlns:ns0="https://www.linutronix.de/projects/Elbe" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" created="2009-05-20T08:50:56" revision="6" xsi:schemaLocation="https://www.linutronix.de/projects/Elbe dbsfed.xsd">
+<project>
+    <name>Tutorial stm32mp157a-dk1</name>
+    <version>3.0</version>
+    <description>STM32 Systemd.</description>
+    <buildtype>armhf</buildtype>
+		<mirror>
+			<primary_host>ftp.de.debian.org</primary_host>
+			<primary_path>/debian</primary_path>
+			<primary_proto>http</primary_proto>
+			<url-list>
+				<url>
+					<binary>http://security.debian.org/ buster/updates main</binary>
+					<source>http://security.debian.org/ buster/updates main</source>
+				</url>
+			</url-list>
+		</mirror>
+		<suite>buster</suite>
+</project>
+<target>
+    <hostname>stm32</hostname>
+    <domain>linutronix.de</domain>
+    <passwd_hashed>$6$rounds=656000$JSeO8uK.EZNKUOWX$tJNREJtkoiO6o8.rkW.BKPBH3DhqjVM/14nqBRg86l2AlDPodGZN4IVGhyyzdZenioMTg6WdihUbusKiqw6Rk0</passwd_hashed>
+    <console>ttySTM0,115200</console>
+    		<!-- speed up build with debootstrap variant minbase.
+		Using minbase here and explicit install of systemd later
+		on speed up the installation process, since it reduces
+		the emulated part (run in QEMU) of the installation
+		significant.
+		-->
+    <debootstrap variant="systemd">
+        <include>ca-certificates,gpg-agent</include>
+    </debootstrap>
+    <package>
+        <tar>
+        <name>stm32mp157a-dk1.tgz</name>
+        </tar>
+    </package>
+    <images>
+        <gpthd>
+            <name>stm32mp1-debian.img</name>
+            <size>16GB</size>
+            <partition>
+                <size>1MiB</size>
+                <label>fsbl1</label>
+                <!-- First copy of first stage bootloader -->
+                <binary>/boot/u-boot-spl.stm32</binary>
+                <name>fsbl1</name>
+            </partition>
+            <partition>
+                <size>1MiB</size>
+                <label>fsbl2</label>
+                <!-- Backup image if fsbl1 fails -->
+                <binary>/boot/u-boot-spl.stm32</binary>
+                <name>fsbl2</name>
+            </partition>
+            <partition>
+                <size>2MiB</size>
+                <label>ssbl</label>
+                <!-- U-Boot Bootloader image -->
+                <binary>/boot/u-boot-dtb.img</binary>
+                <name>ssbl</name>
+            </partition>
+            <partition>
+                <size>500MiB</size>
+                <label>bootfs</label>
+                <name>bootfs</name>
+            </partition>
+            <partition>
+                <size>remain</size>
+                <label>rfs</label>
+                <name>rfs</name>
+            </partition>
+        </gpthd>
+    </images>
+    <fstab>
+        <bylabel>
+        <label>fsbl1</label>
+        <mountpoint>/fsbl1</mountpoint>
+        <fs>
+            <type>ext2</type>
+        </fs>
+        <!--options>nofail,x-systemd.device-timeout=1ms</options-->
+        <nofstab></nofstab>
+    </bylabel>
+    <bylabel>
+        <label>fsbl2</label>
+        <mountpoint>/fsbl2</mountpoint>
+        <fs>
+        <type>ext2</type>
+        </fs>
+        <!--options>nofail,x-systemd.device-timeout=1ms</options-->
+        <nofstab></nofstab>
+        </bylabel>
+    <bylabel>
+        <label>ssbl</label>
+        <mountpoint>/ssbl</mountpoint>
+        <fs>
+        <type>ext2</type>
+        </fs>        
+        <!--options>nofail,x-systemd.device-timeout=1ms</options-->
+        <nofstab></nofstab>       
+    </bylabel>
+        <bylabel>
+            <label>bootfs</label>
+            <mountpoint>/boot</mountpoint>
+            <fs>
+            <type>ext2</type>
+            </fs>
+            </bylabel>
+        <bylabel>
+            <label>rfs</label>
+            <mountpoint>/</mountpoint>
+            <fs>
+            <type>ext4</type>
+            </fs>
+        </bylabel>
+    </fstab>
+    <finetuning>
+        <!-- Provide u-boot.env as .scr - script -->
+        <file dst="/boot/stm32mp157a-dk1_boot.txt" mode="644">
+            echo " ==== Setup bootcmd for SDCARD  ===="
+            setenv bootcmd_sdcard "ext2load mmc 0:4 0xc0000000 zImage; ext2load mmc 0:4 0xc4000000 stm32mp157a-dk1.dtb; setenv bootargs 'root=/dev/mmcblk0p5 rw'; bootz 0xc0000000 - 0xc4000000;"
+            setenv bootcmd "run bootcmd_sdcard"
+            echo " ==== Save the the changes ===="
+            saveenv
+        </file>
+        <command>mkimage -T script -d /boot/stm32mp157a-dk1_boot.txt /boot/stm32mp157a-dk1_boot.scr</command>
+			<!-- set a proper u-boot environment -->
+			<!--command>echo "uenvcmd=setenv bootargs 'console=ttyO0,115200 root=/dev/mmcblk0p2';load mmc 0:1 0x84000000 vmlinuz-armmp;load mmc 0:1 0x82000000 am335x-boneblack.dtb;load mmc 0:1 0x88000000 initrd.img-armmp;bootz 0x84000000 0x88000000:\${filesize} 0x82000000" > /boot/uEnv.txt</command-->
+		<adduser passwd_hashed="$6$rounds=656000$4Qp9DIDN2ezRcFb6$6z2JwMLCa.K8gUl9ZTnJEvXZo9dnvK4wRXcYcsD/tEN5d5hj51BkJyowhGekXzBh7Ih82mavfmRZFF94gmLkn." create_home="true" shell="/bin/bash">devel</adduser>
+		<command>chmod 700 /home/devel/</command>
+        			<file dst="/etc/network/interfaces" mode="644">
+				auto eth0
+				allow-hotplug eth0
+				iface enp0s0f0 inet static
+					address 192.168.3.12
+
+			</file>
+    </finetuning>
+	<pbuilder>
+        <git revision="main">https://github.com/KaiStaud/uboot-debian.git</git>
+        <git revision="prebuild">--branch prebuild https://github.com/KaiStaud/linux-debian.git</git>
+        <!--git revision="main"> https://github.com/KaiStaud/swupdate-testconfig.git</git-->    
+            <!--git revision="main">https://github.com/KaiStaud/linux-debian.git</git-->
+	</pbuilder>
+	<project-finetuning>
+	</project-finetuning>
+	<pkg-list>
+        <!-- Pbuilder Packete -->
+        <pkg>u-boot-image-u-boot-2021.01</pkg>
+        <pkg>u-boot-tools-u-boot-2021.01</pkg>
+        <pkg>linux-debian</pkg>
+        <!-- Essentielle Packete -->
+        <pkg>sed</pkg>
+        <pkg>tar</pkg>
+        <pkg>coreutils</pkg>
+        <pkg>util-linux</pkg>
+        <!-- Nice-to-have Packete -->
+	<pkg>isc-dhcp-client</pkg> <!-- provides dhclient -->
+	<pkg>net-tools</pkg>
+	<pkg>nano</pkg>
+	<pkg>openssh-server</pkg>
+        <pkg>less</pkg>
+        <pkg>bash</pkg>
+	<pkg>e2fsprogs</pkg>
+	<pkg>build-essential</pkg>
+	<pkg>sudo</pkg>
+    	<pkg>fakeroot</pkg>
+	<pkg>dwarves</pkg>
+     <!--
+            explicit install of systemd, since debootstrap
+            variant minbase has no default init system.
+     -->
+        <pkg>systemd</pkg>
+		</pkg-list>
+</target>
+</ns0:RootFileSystem>
