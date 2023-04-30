@@ -8,14 +8,8 @@
 			<primary_host>ftp.de.debian.org</primary_host>
 			<primary_path>/debian</primary_path>
 			<primary_proto>http</primary_proto>
-			<url-list>
-				<url>
-					<binary>http://security.debian.org/ buster/updates main</binary>
-					<source>http://security.debian.org/ buster/updates main</source>
-				</url>
-			</url-list>
 		</mirror>
-		<suite>buster</suite>
+		<suite>bullseye</suite>
 </project>
 <target>
     <hostname>stm32</hostname>
@@ -141,7 +135,7 @@
 	<pbuilder>
         <git revision="main">https://github.com/KaiStaud/uboot-debian.git</git>
         <git revision="prebuild">--branch prebuild https://github.com/KaiStaud/linux-debian.git</git>
-        <!--git revision="main"> https://github.com/KaiStaud/swupdate-testconfig.git</git-->    
+        <git revision="main"> https://github.com/KaiStaud/swupdate-testconfig.git</git>    
             <!--git revision="main">https://github.com/KaiStaud/linux-debian.git</git-->
 	</pbuilder>
 	<project-finetuning>
@@ -151,6 +145,9 @@
         <pkg>u-boot-image-u-boot-2021.01</pkg>
         <pkg>u-boot-tools-u-boot-2021.01</pkg>
         <pkg>linux-debian</pkg>
+        <pkg>swupdate-debian</pkg>
+        <pkg>libswupdate-debian-dev</pkg>
+        <pkg>libswupdate-debian0.1</pkg>
         <!-- Essentielle Packete -->
         <pkg>sed</pkg>
         <pkg>tar</pkg>
