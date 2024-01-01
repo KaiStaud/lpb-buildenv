@@ -2,7 +2,7 @@ Source: linux-5.10.168-ti-r72
 Section: unknown
 Priority: optional
 Maintainer: kai <>
-Build-Depends: debhelper-compat (= 12),git
+Build-Depends: debhelper-compat (= 12),git,ubuntu-keyring
 Standards-Version: 4.5.0
 Homepage: <insert the upstream URL, if relevant>
 
