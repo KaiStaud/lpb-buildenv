@@ -1,9 +1,0 @@
-<?xml version="1.0"?>
-<finetuning>
-  <file dst="/boot/extlinux.conf" append="true" mode="644">
-    label Linux 5.10.88
-    kernel /boot/vmlinuz-5.10.88
-    append console=ttySTM0,115200 root=/dev/mmcblk0p4 ro rootfstype=ext4 rootwait
-    fdtdir /boot/dtbs/5.10.88/
-  </file>
-<finetuning>

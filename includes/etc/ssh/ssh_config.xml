@@ -1,7 +1,0 @@
-
-<?xml version="1.0"?>
-<finetuning>
-    <file dst="/etc/ssh/ssh_config" append="true" mode="644">
-        PermitRootLogin yes
-    </file>
-</finetuning>        
