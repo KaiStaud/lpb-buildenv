@@ -1,3 +1,3 @@
-am335x-boneblack.dtb /boot
+am335x-boneblack.dtb /boot/dts/5.10.168-ti-rt72
 initrd.img-5.10.168-ti-r72 /boot
 vmlinuz-5.10.168-ti-r72 /boot
